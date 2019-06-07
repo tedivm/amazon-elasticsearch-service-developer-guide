@@ -162,7 +162,12 @@ region = '' # e.g. us-west-1
 
 service = 'es'
 credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service)
+
+if credentials.token:
+    # Instance Roles need to pass a session token along with the request.
+    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
+else:
+    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service)
 
 es = Elasticsearch(
     hosts = [{'host': host, 'port': 443}],
